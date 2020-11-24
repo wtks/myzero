@@ -17,29 +17,29 @@ async def run(loop):
     bme280ch2 = BME280I2C(0x77)
     tsl2572 = TSL2572(0x39)
 
-    while True:
-        bme280ch1.meas()
-        bme280ch2.meas()
-        tsl2572.meas_single()
-
-        await nc.publish("work.wtks.home.envsensor", json.dumps({
-            "t1": bme280ch1.T,
-            "p1": bme280ch1.P,
-            "h1": bme280ch1.H,
-            "t2": bme280ch2.T,
-            "p2": bme280ch2.P,
-            "h2": bme280ch2.H,
-            "l": tsl2572.lux
-        }).encode())
-        await asyncio.sleep(10)
-
-
-if __name__ == '__main__':
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(run(loop))
-        loop.close()
+        while True:
+            bme280ch1.meas()
+            bme280ch2.meas()
+            tsl2572.meas_single()
+
+            await nc.publish("work.wtks.home.envsensor", json.dumps({
+                "t1": bme280ch1.T,
+                "p1": bme280ch1.P,
+                "h1": bme280ch1.H,
+                "t2": bme280ch2.T,
+                "p2": bme280ch2.P,
+                "h2": bme280ch2.H,
+                "l": tsl2572.lux
+            }).encode())
+            await asyncio.sleep(10)
     except KeyboardInterrupt:
         pass
     finally:
         await nc.close()
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run(loop))
+    loop.close()
