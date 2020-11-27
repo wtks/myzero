@@ -129,6 +129,7 @@ func main() {
 	if err = dg.Open(); err != nil {
 		log.Fatal(err)
 	}
+	defer dg.Close()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
