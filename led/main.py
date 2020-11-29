@@ -19,7 +19,7 @@ async def run(loop):
 
     async def subscribe_handler(msg):
         num = int(msg.subject.rsplit('.', 1)[-1])
-        on = msg.decode() == 'on'
+        on = msg.data.decode() == 'on'
 
         if num == 1:
             pi.write(17, on)
