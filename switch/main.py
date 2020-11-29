@@ -20,6 +20,7 @@ async def run(loop):
 
     def cb_interrupt(gpio, level, tick):
         n = gpio - 4
+        print (n, level, tick)
         nc.publish("work.wtks.home.switch." + str(n), json.dumps({
             "t": tick,
             "l": level
