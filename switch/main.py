@@ -3,36 +3,35 @@
 import asyncio
 import os
 from nats.aio.client import Client as NATS
-import apigpio
+import pigpio
 import json
 
 nc = NATS()
-loop = asyncio.get_event_loop()
-pi = apigpio.Pi(loop)
+pi = pigpio.pi()
+
+pi.set_mode(5, pigpio.INPUT)
+pi.set_pull_up_down(5, pigpio.PUD_UP)
+pi.set_mode(6, pigpio.INPUT)
+pi.set_pull_up_down(6, pigpio.PUD_UP)
 
 
 async def run(loop):
     await nc.connect(os.getenv('NATS_SERVER'), loop=loop)
 
-    await pi.connect(('127.0.0.1', 8888))
-    await pi.set_mode(5, apigpio.INPUT)
-    await pi.set_pull_up_down(5, apigpio.PUD_UP)
-    await pi.set_mode(6, apigpio.INPUT)
-    await pi.set_pull_up_down(6, apigpio.PUD_UP)
-
     def cb_interrupt(gpio, level, tick):
         n = gpio - 4
-        print(n, level, tick)
+        print (n, level, tick)
         nc.publish("work.wtks.home.switch." + str(n), json.dumps({
             "t": tick,
             "l": level
         }).encode())
 
-    await pi.add_callback(5, apigpio.EITHER_EDGE, cb_interrupt)
-    await pi.add_callback(6, apigpio.EITHER_EDGE, cb_interrupt)
+    pi.callback(5, pigpio.EITHER_EDGE, cb_interrupt)
+    pi.callback(6, pigpio.EITHER_EDGE, cb_interrupt)
 
 
 if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
     loop.run_until_complete(run(loop))
     try:
         loop.run_forever()
