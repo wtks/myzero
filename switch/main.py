@@ -34,4 +34,7 @@ async def run(loop):
 
 if __name__ == '__main__':
     loop.run_until_complete(run(loop))
-    loop.run_forever()
+    try:
+        loop.run_forever()
+    finally:
+        loop.close()
